@@ -1,4 +1,4 @@
-#include "../include/codegen.h"
+#include "codegen.h"
 #include <iostream>
 
 void CodeGenerator::generate(const AstNode& rootNode) {

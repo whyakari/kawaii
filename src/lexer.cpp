@@ -1,4 +1,4 @@
-#include "../include/lexer.h"
+#include "lexer.h"
 
 Lexer::Lexer(const std::string& input) : input(input), position(0), currentChar(input[0]) {}
 
