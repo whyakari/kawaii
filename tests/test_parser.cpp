@@ -2,20 +2,24 @@
 #include "../include/parser.h"
 #include <iostream>
 
-int main() {
-    std::string input = "kudasai minhaFuncao(p: int) yamete {}";
-    Lexer lexer(input);
+void testParser(const std::string& source) {
+    Lexer lexer(source);
     Parser parser(lexer);
+
+    std::cout << "Source code: " << source << "\n";
+
     try {
-        AstNode rootNode = parser.parseFunction();
-		std::cout << "Function type: " << rootNode.type << std::endl;
-        std::cout << "Parsed function name: " << rootNode.name << std::endl;
-        std::cout << "Parameter name: " << rootNode.parameterName << std::endl;
-        std::cout << "Parameter type: " << rootNode.parameterType << std::endl;
-        std::cout << "Return type: " << rootNode.returnType << std::endl;
-    } catch (const std::runtime_error& error) {
-        std::cerr << "Error: " << error.what() << std::endl;
+        parser.parse();
+        std::cout << "Parse successful\n\n";
+    } catch (const std::exception& e) {
+        std::cerr << "Parse error: " << e.what() << "\n";
     }
+}
+
+int main() {
+    testParser("let x = 10;");
+    testParser("fn add(a: int, b: int) -> int { return a + b; }");
+    testParser("let y = 3.14;");
 
     return 0;
 }

@@ -53,7 +53,7 @@ help:
 	@echo "  test_codegen: Build and run the codegen tests"
 	@echo "  clean       : Remove all built files"
 
-test_lexer: $(LEXER_OBJ) $(LEXER_TEST_SRC)
+test_lexer: $(LEXER_OBJ) $(LEXER_TEST_SRC) $(PARSER_OBJ)
 	$(CXX) $(CXXFLAGS) -o $(LEXER_TEST_BIN) $^
 
 test_parser: $(LEXER_OBJ) $(PARSER_OBJ) $(PARSER_TEST_SRC)

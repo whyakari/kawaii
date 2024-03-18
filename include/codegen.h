@@ -5,10 +5,13 @@
 
 class CodeGenerator {
 public:
-    void generate(const AstNode& rootNode);
-
+    CodeGenerator(Parser& parser);
+    void generate();
 private:
-    void generateFunction(const AstNode& node);
+    Parser& parser;
+
+    void generateStatement(const Token& token);
+    void generateExpression(const Token& token);
 };
 
 #endif // CODEGEN_H

@@ -4,12 +4,17 @@
 #include <iostream>
 
 int main() {
-    std::string input = "kudasai akari(p: string) yamete {}";
-    Lexer lexer(input);
+    std::string sourceCode = "let a = 10;";
+    Lexer lexer(sourceCode);
     Parser parser(lexer);
-    AstNode rootNode = parser.parseFunction();
-    CodeGenerator codegen;
-    codegen.generate(rootNode);
+    CodeGenerator codegen(parser);
+
+    Token token = lexer.getNextToken();
+    std::cout << "Current token: Type " << static_cast<int>(token.type) << ", Lexeme: " << token.lexeme << "\n";
+
+    parser.parse();
+    codegen.generate();
+
     return 0;
 }
 

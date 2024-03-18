@@ -1,22 +1,21 @@
-#include "../include/codegen.h"
+#include "../include/lexer.h"
 #include "../include/parser.h"
+#include "../include/codegen.h"
 #include <iostream>
 
 int main() {
-    // Create an example AST node representing a function
-    AstNode rootNode;
-    rootNode.type = "Function";
-    rootNode.name = "myFunction";
-    rootNode.parameterName = "param";
-    rootNode.parameterType = "int";
-    rootNode.returnType = "void";
+    Lexer lexer("fn add(a: int, b: int) -> int { return a + b; }");
+    Parser parser(lexer);
+    CodeGenerator codegen(parser);
 
-    // Initialize the CodeGenerator
-    CodeGenerator codegen;
+    std::cout << "Source code: fn add(a: int, b: int) -> int { return a + b; }\n";
 
-    // Generate code for the function and display it
-    std::cout << "Generated code:" << std::endl;
-    codegen.generate(rootNode);
+    try {
+        codegen.generate();
+    } catch (const std::exception& e) {
+        std::cerr << "Code generation error: " << e.what() << "\n";
+        return 1;
+    }
 
     return 0;
 }

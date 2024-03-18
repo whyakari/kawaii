@@ -2,26 +2,20 @@
 #define PARSER_H
 
 #include "lexer.h"
-#include <string>
-
-struct AstNode {
-    std::string type;
-    std::string name;
-    std::string parameterName;
-    std::string parameterType;
-    std::string returnType;
-};
 
 class Parser {
 public:
     Parser(Lexer& lexer);
-    AstNode parseFunction();
+    void parse();
 private:
     Lexer& lexer;
     Token currentToken;
 
     void eat(TokenType type);
+    void statement();
+    void expression();
+	void functionDeclaration();
 };
 
-#endif
+#endif // PARSER_H
 

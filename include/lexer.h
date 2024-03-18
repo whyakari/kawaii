@@ -2,44 +2,55 @@
 #define LEXER_H
 
 #include <string>
-#include <vector>
+#include <cctype>
 
 enum class TokenType {
-    TOK_KUDASAI,
-    TOK_LPAREN,
-    TOK_IDENTIFIER,
-    TOK_COLON,
-    TOK_STRING,
-    TOK_INT,
-	TOK_NUMBER,
-    TOK_RPAREN,
-    TOK_YAMETE,
-    TOK_LBRACE,
-    TOK_RBRACE,
-    TOK_SEMICOLON,
-    TOK_EOF,
-	UNKNOWN_TOKEN
+    IDENTIFIER,
+    INTEGER,
+    FLOAT,
+    PLUS,
+    MINUS,
+    TIMES,
+    DIVIDE,
+    SEMICOLON,
+	COLON,
+    ASSIGN,
+    LPAREN,
+    RPAREN,
+    LBRACE,
+    RBRACE,
+    COMMA,
+    FUNCTION,
+    LET,
+    RETURN,
+    ARROW,
+    EOF_TOKEN,
+    INVALID
 };
+
 
 struct Token {
     TokenType type;
-    std::string value;
+    std::string lexeme;
 };
 
 class Lexer {
 public:
-    Lexer(const std::string& input);
+    Lexer(const std::string& source);
     Token getNextToken();
+    char peek() const;
 private:
-    std::string input;
-    size_t position;
+    std::string sourceCode;
+    size_t currentPosition;
     char currentChar;
+    std::string input;
+    int position;
+    int index;
 
     void advance();
+    Token processIdentifier();
+    Token processNumber();
     void skipWhitespace();
-    Token parseIdentifier();
-    Token parseString();
-	Token parseNumber();
 };
 
-#endif
+#endif // LEXER_H

@@ -2,88 +2,92 @@
 #include <iostream>
 #include <stdexcept>
 
-std::string token(TokenType type) {
-    switch (type) {
-        case TokenType::TOK_KUDASAI: return "TOK_KUDASAI";
-        case TokenType::TOK_YAMETE: return "TOK_YAMETE";
-        case TokenType::TOK_LPAREN: return "TOK_LPAREN";
-        case TokenType::TOK_RPAREN: return "TOK_RPAREN";
-        case TokenType::TOK_COLON: return "TOK_COLON";
-        case TokenType::TOK_STRING: return "TOK_STRING";
-		case TokenType::TOK_INT: return "TOK_INT";
-        case TokenType::TOK_LBRACE: return "TOK_LBRACE";
-        case TokenType::TOK_RBRACE: return "TOK_RBRACE";
-        case TokenType::TOK_SEMICOLON: return "TOK_SEMICOLON";
-        case TokenType::TOK_EOF: return "TOK_EOF";
-        case TokenType::TOK_IDENTIFIER: return "TOK_IDENTIFIER";
-        default:
-            return "UNKNOWN";
-    }
-}
-
 Parser::Parser(Lexer& lexer) : lexer(lexer), currentToken(lexer.getNextToken()) {}
+
+void Parser::parse() {
+    statement();
+}
 
 void Parser::eat(TokenType type) {
     if (currentToken.type == type) {
         currentToken = lexer.getNextToken();
     } else {
-        std::string expectedToken = token(type);
-        std::string foundToken = token(currentToken.type);
-        throw std::runtime_error("Syntax error: expected token '" + expectedToken + "' but found '" + foundToken + "'");
+        throw std::runtime_error("Syntax error: unexpected token");
     }
 }
 
-AstNode Parser::parseFunction() {
-    AstNode node;
-    node.type = "Function";
-
-    // Parse "kudasai" keyword
-    token(TokenType::TOK_KUDASAI);
-
-    // Parse function name
-    node.name = currentToken.value;
-    token(TokenType::TOK_IDENTIFIER);
-
-    // Parse parameter list
-    token(TokenType::TOK_LPAREN);
-    node.parameterName = currentToken.value;
-    token(TokenType::TOK_IDENTIFIER);
-    token(TokenType::TOK_COLON);
-    node.parameterType = currentToken.value;
-    if (currentToken.type == TokenType::TOK_IDENTIFIER) {
-        node.parameterType = currentToken.value;
-        currentToken = lexer.getNextToken();
+void Parser::statement() {
+    if (currentToken.type == TokenType::LET) {
+        eat(TokenType::LET);
+        eat(TokenType::IDENTIFIER);
+        eat(TokenType::ASSIGN);
+        expression();
+        eat(TokenType::SEMICOLON);
+    } else if (currentToken.type == TokenType::RETURN) {
+        eat(TokenType::RETURN);
+        expression();
+        eat(TokenType::SEMICOLON);
+    } else if (currentToken.type == TokenType::FUNCTION) {
+        functionDeclaration();
     } else {
-        throw std::runtime_error("Syntax error: invalid parameter type");
+        throw std::runtime_error("Syntax error: invalid statement");
     }
+}
 
-    token(TokenType::TOK_IDENTIFIER);  // Consume parameter name
-    token(TokenType::TOK_RPAREN);  // Consume closing parenthesis
-
-    // Parse "yamete" keyword and return type
-    token(TokenType::TOK_YAMETE);
-    if (currentToken.type == TokenType::TOK_STRING) {
-        node.returnType = "string";
-        currentToken = lexer.getNextToken();
-    } else if (currentToken.type == TokenType::TOK_INT) {
-        node.returnType = "int";
-        currentToken = lexer.getNextToken();
-    } else {
-        throw std::runtime_error("Syntax error: expected return type but found " + token(currentToken.type));
-    }
-
-    eat(TokenType::TOK_IDENTIFIER);  // Consume return type
-
-    // Parse function body (optional for now)
-    if (currentToken.type == TokenType::TOK_LBRACE) {
-        eat(TokenType::TOK_LBRACE);
-        while (currentToken.type != TokenType::TOK_RBRACE && currentToken.type != TokenType::TOK_EOF) {
-            // Skip the body for now
-            currentToken = lexer.getNextToken();
+void Parser::expression() {
+    if (currentToken.type == TokenType::INTEGER || currentToken.type == TokenType::FLOAT || currentToken.type == TokenType::IDENTIFIER) {
+        eat(currentToken.type);
+    } else if (currentToken.type == TokenType::LPAREN) {
+        eat(TokenType::LPAREN);
+        expression();
+        eat(TokenType::RPAREN);
+    } else if (currentToken.type == TokenType::FUNCTION) {
+        eat(TokenType::FUNCTION);
+        eat(TokenType::IDENTIFIER); // Nome da função
+        eat(TokenType::LPAREN);
+        while (currentToken.type != TokenType::RPAREN) {
+            expression();
+            if (currentToken.type == TokenType::COMMA) {
+                eat(TokenType::COMMA);
+            } else if (currentToken.type != TokenType::RPAREN) {
+                throw std::runtime_error("Syntax error: unexpected token in function parameters");
+            }
         }
-        eat(TokenType::TOK_RBRACE);  // Consume closing brace
+        eat(TokenType::RPAREN);
+        eat(TokenType::ARROW);
+        eat(TokenType::IDENTIFIER); // Tipo de retorno da função
+        eat(TokenType::LBRACE);
+        while (currentToken.type != TokenType::RBRACE) {
+            expression();
+        }
+        eat(TokenType::RBRACE);
+    } else {
+        throw std::runtime_error("Syntax error: unexpected token in expression");
     }
 
-    return node;
+    while (currentToken.type == TokenType::PLUS || currentToken.type == TokenType::MINUS || currentToken.type == TokenType::TIMES || currentToken.type == TokenType::DIVIDE) {
+        eat(currentToken.type);
+        expression();
+    }
+}
+
+void Parser::functionDeclaration() {
+    eat(TokenType::FUNCTION);
+    eat(TokenType::IDENTIFIER); // Nome da função
+    eat(TokenType::LPAREN);
+    while (currentToken.type != TokenType::RPAREN) {
+        eat(TokenType::IDENTIFIER); // Tipo do parâmetro
+        if (currentToken.type == TokenType::COMMA) {
+            eat(TokenType::COMMA);
+        }
+    }
+    eat(TokenType::RPAREN);
+    eat(TokenType::ARROW); // Token "->" para indicar tipo de retorno
+    eat(TokenType::IDENTIFIER); // Tipo de retorno da função
+    eat(TokenType::LBRACE);
+    while (currentToken.type != TokenType::RBRACE) {
+        statement();
+    }
+    eat(TokenType::RBRACE);
 }
 
