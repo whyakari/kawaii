@@ -1,0 +1,20 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-std=c++11",
+      "-Wall",
+      "-Wextra",
+      "-I",
+      "./include/",
+      "build/lexer.o",
+      "-o",
+      "bin/test_lexer",
+      "tests/test_lexer.cpp"
+    ],
+    "directory": "/home/outragedline/Projects/kawaii",
+    "file": "/home/outragedline/Projects/kawaii/tests/test_lexer.cpp",
+    "output": "/home/outragedline/Projects/kawaii/bin/test_lexer"
+  }
+]
